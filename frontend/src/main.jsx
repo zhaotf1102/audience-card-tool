@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
@@ -23,25 +23,12 @@ function App() {
     setMessage('正在创建项目...');
     try {
       const res = await fetch(`${API_BASE}/api/jobs`, { method: 'POST' });
-      setJob(await res.json());
+      const created = await res.json();
+      const next = await fetch(`${API_BASE}/api/jobs/${created.job_id}`);
+      setJob(await next.json());
       setMessage('项目已创建，可以上传照片和 PPT 模板。');
-      await refreshJobFromResponse(res);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function refreshJob() {
-    if (!job?.job_id) return;
-    const res = await fetch(`${API_BASE}/api/jobs/${job.job_id}`);
-    setJob(await res.json());
-  }
-
-  async function refreshJobFromResponse(res) {
-    const data = await res.clone().json();
-    if (data.job_id) {
-      const next = await fetch(`${API_BASE}/api/jobs/${data.job_id}`);
-      setJob(await next.json());
     }
   }
 
